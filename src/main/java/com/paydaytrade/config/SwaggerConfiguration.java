@@ -1,14 +1,8 @@
 package com.paydaytrade.config;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.*;
@@ -32,11 +26,11 @@ public class SwaggerConfiguration {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Spring Boot Blog REST APIs",
-                "Spring Boot Blog REST API Documentation",
+                "Spring Boot PAYDAY TRADE REST APIs",
+                "Spring Boot PAYDAY TRADE REST API Documentation",
                 "1",
                 "Terms of service",
-                new Contact("Anar Mammadov", "https://www.linkedin.com/in/anarmemmedov1501/", "mammadov_anar@outlook.com"),
+                new Contact("Yasin Sadigzade", "", ""),
                 "License of API",
                 "API license URL",
                 Collections.emptyList()

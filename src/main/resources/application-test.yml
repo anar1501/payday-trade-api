@@ -1,8 +1,11 @@
-employee:
+payday-trade:
+  api-key: EdDRh4bQXjlkJg69HKK8z7vKb3u3aLIu
+  stock-aapl-url: https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=
+  stock-tsla-url: https://api.polygon.io/v1/open-close/TSLA/2020-10-14?adjusted=true&apiKey=
   datasource:
     username: root
     password: root
-    url: jdbc:mysql://localhost:3306/paydaytrade
+    url: jdbc:mysql://localhost:3306/payday_trade_api
     driver: com.mysql.cj.jdbc.Driver
   hibernate:
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -26,12 +29,17 @@ spring:
 
 #jwt properties
 app:
-    jwt-secret: JWTSecretKey
-    jwt-expiration-milliseconds: 604800000
+  jwt-secret: JWTSecretKey
+  jwt-expiration-milliseconds: 604800000
 
 
 ##emailmsj
 my:
-    message:
-        body: "Please confirm your registration url: "
-        subject: "Registration Confirm Link"
+  message:
+   body: "Please confirm your registration url: "
+   subject: "Registration Confirm Link"
+
+order-message:
+  order-subject: "Place an Order"
+  order-sold: "Your order was sold!"
+  order-bought: "Order was bought"

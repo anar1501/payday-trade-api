@@ -2,8 +2,10 @@ package com.paydaytrade.data.dto.request;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class LoginRequestDto {
+public class LoginRequestDto implements Serializable {
 
     private String usernameOrEmail;
 

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -22,21 +23,21 @@ import java.util.HashMap;
 )
 public class DatabaseConfiguration {
 
-    @Value("${employee.datasource.username}")
+    @Value("${payday-trade.datasource.username}")
     private String datasourceUser;
-    @Value("${employee.datasource.password}")
+    @Value("${payday-trade.datasource.password}")
     private String datasourcePassword;
-    @Value("${employee.datasource.url}")
+    @Value("${payday-trade.datasource.url}")
     private String datasourceHost;
-    @Value("${employee.datasource.driver}")
+    @Value("${payday-trade.datasource.driver}")
     private String datasourceDriver;
-    @Value("${employee.hibernate.database-platform}")
+    @Value("${payday-trade.hibernate.database-platform}")
     private String hibernateDatabasePlatform;
-    @Value("${employee.hibernate.show-sql}")
+    @Value("${payday-trade.hibernate.show-sql}")
     private boolean hibernateShowSql;
-    @Value("${employee.hibernate.format-sql}")
+    @Value("${payday-trade.hibernate.format-sql}")
     private boolean hibernateFormatSql;
-    @Value("${employee.hibernate.ddl-auto}")
+    @Value("${payday-trade.hibernate.ddl-auto}")
     private String hibernateDdlAuto;
 
     @Bean
@@ -54,6 +55,7 @@ public class DatabaseConfiguration {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSourceSphere());
         em.setPackagesToScan("com.paydaytrade.data.entity");
+        em.setJpaDialect(new HibernateJpaDialect());
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         HashMap<String, Object> properties = new HashMap<>();

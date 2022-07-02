@@ -10,7 +10,7 @@ public interface UserService {
 
     LoginResponseDto login(LoginRequestDto loginRequestDto);
 
-    ResponseEntity<String> register(RegisterRequestDto registerRequestDto);
+    void register(RegisterRequestDto registerRequestDto);
 
     void registerConfirm(String activationCode);
 

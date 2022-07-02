@@ -16,7 +16,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.paydaytrade.enums.MessageCase.EMPLOYEE_DOES_NOT_EXIST;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -91,14 +90,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setMessage(e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleEmptyResultDataAccessExceptionn(EmptyResultDataAccessException e) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setMessage(EMPLOYEE_DOES_NOT_EXIST.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(UsernameAlreadyTaken.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleUsernameAlreadyTaken(UsernameAlreadyTaken customerNotFoundException){
+        ErrorResponse ex = new ErrorResponse(customerNotFoundException.getMessage(), "404");
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
     }
 
-
+    @ExceptionHandler(EmailAlreadyTaken.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyTaken(EmailAlreadyTaken customerNotFoundException){
+        ErrorResponse ex = new ErrorResponse(customerNotFoundException.getMessage(), "404");
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+    }
 }

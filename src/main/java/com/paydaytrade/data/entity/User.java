@@ -20,8 +20,8 @@ public class User implements Serializable {
     private Long id;
     @Column(unique = true,nullable = false)
     private String username;
-    private String password;
     @Column(unique = true,nullable = false)
+    private String password;
     private String email;
     private String activationCode;
     private Date expiredDate;
@@ -44,4 +44,6 @@ public class User implements Serializable {
         getStatus().setId(UNCONFIRMED.getStatusId());
         setCreatedDate(new Date());
     }
+
+
 }

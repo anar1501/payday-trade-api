@@ -1,14 +1,11 @@
 package com.paydaytrade.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Your Confirmed link of Expiration Time is Expired!!")
 public class ExpirationCodeIsExpiredException extends RuntimeException{
-    private String message;
-
-    public ExpirationCodeIsExpiredException(String message) {
-        this.message = message;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
+    public ExpirationCodeIsExpiredException() {
+        super("Such eamil already registered !");
     }
 }

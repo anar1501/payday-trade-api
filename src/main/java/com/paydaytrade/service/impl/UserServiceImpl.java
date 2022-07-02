@@ -1,6 +1,5 @@
 package com.paydaytrade.service.impl;
 
-import com.paydaytrade.config.ModelMapperConfiguration;
 import com.paydaytrade.data.dto.request.LoginRequestDto;
 import com.paydaytrade.data.dto.request.RegisterRequestDto;
 import com.paydaytrade.data.dto.request.ResetPasswordRequestDto;
@@ -8,7 +7,6 @@ import com.paydaytrade.data.dto.response.LoginResponseDto;
 import com.paydaytrade.data.entity.User;
 import com.paydaytrade.data.repository.UserRepository;
 import com.paydaytrade.data.repository.UserStatusRepositry;
-import com.paydaytrade.enums.MessageCase;
 import com.paydaytrade.enums.UserStatusEnum;
 import com.paydaytrade.exception.*;
 import com.paydaytrade.security.jwt.JwtUtil;
@@ -17,8 +15,6 @@ import com.paydaytrade.utils.GeneralUtils;
 import com.paydaytrade.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,7 +26,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.paydaytrade.enums.MessageCase.*;
+import static com.paydaytrade.mapper.DtoToEntity.INSTANCE;
 
 @Service
 @RequiredArgsConstructor
@@ -56,15 +52,14 @@ public class UserServiceImpl implements UserService {
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
 
         User user = userRepository.findByEmailOrUsername(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getUsernameOrEmail())
-                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND.getMessage()));
+                .orElseThrow(UsernameNotFoundException::new);
         boolean isTrue = passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
         if (!isTrue) {
-            throw new WrongPasswordException(WRONG_PASSWORD.getMessage());
+            throw new WrongPasswordException();
         }
         if (user.getStatus().getId().equals(UserStatusEnum.UNCONFIRMED.getStatusId())) {
-            throw new UnconfirmedException(USER_UNCONFIRMED.getMessage());
+            throw new UnconfirmedException();
         }
-
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsernameOrEmail(), loginRequestDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         return new LoginResponseDto(jwtUtil.generateToke(authenticate));
@@ -72,20 +67,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> register(RegisterRequestDto registerRequestDto) {
+    public void register(RegisterRequestDto registerRequestDto) {
         if (userRepository.existsByUsername(registerRequestDto.getUsername())) {
-            return new ResponseEntity<>(MessageCase.USERNAME_ALREADY_TAKEN.getMessage(), HttpStatus.BAD_REQUEST);
+            throw new UsernameAlreadyTaken();
         } else if (userRepository.existsByEmail(registerRequestDto.getEmail())) {
-            return new ResponseEntity<>(MessageCase.EAMIL_ALREADY_TAKEN.getMessage(), HttpStatus.BAD_REQUEST);
+            throw new EmailAlreadyTaken();
         }
-        User user = ModelMapperConfiguration.map(registerRequestDto, User.class);
+        User user = INSTANCE.toEntity(registerRequestDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setExpiredDate(GeneralUtils.prepareRegistrationExpirationDate());
         user.setActivationCode(passwordEncoder.encode(UUID.randomUUID().toString()));
         User saveUser = userRepository.save(user);
         String confirmLink = "http://localhost:8080/api/v1/auth/register-confirm?activationcode=" + saveUser.getActivationCode();
         messageUtils.sendAsync(saveUser.getEmail(), messageSubject, messageBody + confirmLink);
-        return new ResponseEntity<>(MessageCase.SUCCESSFULLY_REGISTERED.getMessage(), HttpStatus.CREATED);
     }
 
     @Transactional
@@ -93,11 +87,11 @@ public class UserServiceImpl implements UserService {
     public void registerConfirm(String activationCode) {
         User user = userRepository.findByActivationCode(activationCode);
         if (user.getStatus().getId().equals(UserStatusEnum.CONFIRMED.getStatusId())) {
-            throw new AlreadyConfirmedException(MessageCase.USER_ALREADY_CONFIRMED.getMessage());
+            throw new AlreadyConfirmedException();
         }
         Date expiredDate = user.getExpiredDate();
         if (expiredDate.before(currentDate)) {
-            throw new ExpirationCodeIsExpiredException(MessageCase.EXPIRATION_TIME_IS_EXPIRED.getMessage());
+            throw new ExpirationCodeIsExpiredException();
         } else {
             user.setStatus(userStatusRepositry.findUserStatusById(UserStatusEnum.CONFIRMED.getStatusId()));
             userRepository.save(user);
@@ -120,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void forgetPassword(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EmailIsIncorrectException(EMAIL_IS_INCORRECT.getMessage()));
+        User user = userRepository.findByEmail(email).orElseThrow(EmailIsIncorrectException::new);
         user.setSixDigitCode(GeneralUtils.getRandomNumberString());
         user.setForgetPasswordExpiredDate(GeneralUtils.prepareForgetPasswordExpirationDate());
         User saveUser = userRepository.save(user);
@@ -129,10 +123,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void resetPassword(ResetPasswordRequestDto requestDto) {
-        User user = userRepository.findBySixDigitCode(requestDto.getSixDigitCode()).orElseThrow(() -> new SixDigitIncorrectException(SIX_DIGIT_CODE.getMessage()));
+        User user = userRepository.findBySixDigitCode(requestDto.getSixDigitCode()).orElseThrow(SixDigitIncorrectException::new);
         Date expiredDate = user.getForgetPasswordExpiredDate();
-        if (expiredDate.before(currentDate)){
-            throw new ExpirationCodeIsExpiredException(EXPIRATION_TIME_IS_EXPIRED.getMessage());
+        if (expiredDate.before(currentDate)) {
+            throw new ExpirationCodeIsExpiredException();
         }
         user.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
         userRepository.save(user);

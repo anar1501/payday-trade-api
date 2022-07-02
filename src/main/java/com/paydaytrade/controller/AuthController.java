@@ -4,14 +4,11 @@ import com.paydaytrade.data.dto.request.LoginRequestDto;
 import com.paydaytrade.data.dto.request.RegisterRequestDto;
 import com.paydaytrade.data.dto.request.ResetPasswordRequestDto;
 import com.paydaytrade.data.dto.response.LoginResponseDto;
-import com.paydaytrade.security.jwt.JwtUtil;
 import com.paydaytrade.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static com.paydaytrade.enums.MessageCase.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -19,8 +16,6 @@ import static com.paydaytrade.enums.MessageCase.*;
 public class AuthController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
-
 
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
@@ -29,31 +24,32 @@ public class AuthController {
 
 
     @PostMapping(value = "/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestDto registerRequestDto) {
-        return userService.register(registerRequestDto);
+    public HttpStatus register(@RequestBody RegisterRequestDto registerRequestDto) {
+         userService.register(registerRequestDto);
+         return HttpStatus.CREATED;
     }
 
     @GetMapping(value = "/register-confirm")
-    public ResponseEntity<String> registerConfirm(@RequestParam(value = "activationcode") String activationCode) {
+    public HttpStatus registerConfirm(@RequestParam(value = "activationcode") String activationCode) {
         userService.registerConfirm(activationCode);
-        return new ResponseEntity<>(REGISTRATION_SUCCESSFULLY_CONFIRMED.getMessage(), HttpStatus.OK);
+        return HttpStatus.OK;
     }
 
     @GetMapping(value = "/resend")
-    public ResponseEntity<String> resendEmail(@RequestParam(value = "email")String email){
+    public HttpStatus resendEmail(@RequestParam(value = "email")String email){
         userService.resendEmail(email);
-        return ResponseEntity.ok(RESEND_EMAIL_SUCCESSFULLY_SENT.getMessage());
+        return HttpStatus.OK;
     }
 
     @GetMapping(value = "/forget-password")
-    public ResponseEntity<String> forgetPassword(@RequestParam(value = "email")String email){
+    public HttpStatus forgetPassword(@RequestParam(value = "email")String email){
         userService.forgetPassword(email);
-        return ResponseEntity.ok(PASSWORD_CONFIRMATION_LINK.getMessage());
+        return HttpStatus.OK;
     }
 
     @PutMapping(value = "/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDto requestDto){
+    public HttpStatus resetPassword(@RequestBody ResetPasswordRequestDto requestDto){
         userService.resetPassword(requestDto);
-        return ResponseEntity.ok(PASSWORD_SUCCESFULLY_CHANGED.getMessage());
+        return HttpStatus.OK;
     }
 }

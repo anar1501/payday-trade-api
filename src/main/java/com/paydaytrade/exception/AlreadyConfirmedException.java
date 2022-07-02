@@ -1,14 +1,12 @@
 package com.paydaytrade.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Your Confirmation code already confirmed!!")
 public class AlreadyConfirmedException extends RuntimeException{
-    private String message;
-
-    public AlreadyConfirmedException(String message) {
-        this.message = message;
+    public AlreadyConfirmedException() {
+        super("Your Confirmation code already confirmed!!");
     }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
 }

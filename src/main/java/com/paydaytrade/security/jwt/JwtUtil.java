@@ -27,6 +27,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(expiredDate)
+                .setSubject(username)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
 
@@ -40,9 +41,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-
     //validate token
-
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
@@ -60,6 +59,5 @@ public class JwtUtil {
         }
         return false;
     }
-
 
 }
